@@ -24,7 +24,7 @@ h1{font-size:22px;margin:4px 0 14px}
 .card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px}
 .hide{display:none}
 label{display:block;color:var(--mut);font-size:14px;margin:12px 0 6px}
-input,select{width:100%;padding:12px;font-size:18px;border-radius:12px;border:1px solid var(--key);background:var(--bg);color:var(--fg)}
+input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;border:1px solid var(--key);background:var(--bg);color:var(--fg)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chips button,.btn{flex:1;padding:10px 6px;border-radius:10px;border:0;background:var(--key);color:var(--fg);font-size:16px;cursor:pointer}
 .chips button.on,.btn.p{background:var(--ac);color:var(--acf);font-weight:700}
@@ -87,6 +87,9 @@ input,select{width:100%;padding:12px;font-size:18px;border-radius:12px;border:1p
   <div class="card">
     <b>📣 للزبائن</b>
     <label>رابط صفحة الفيس بوك</label><input id="fb" dir="ltr" placeholder="https://www.facebook.com/صفحتك">
+    <label>رابط موقع المحل (خرائط جوجل)</label><input id="mp" dir="ltr" placeholder="https://maps.app.goo.gl/...">
+    <label>العنوان (اختياري)</label><input id="ad" placeholder="مثال: الحي الفلاني، بجانب...">
+    <label>أرقام الهاتف (رقم في كل سطر، ويُفضّل بصيغة +966...)</label><textarea id="ph" rows="3" dir="ltr" placeholder="+966500000000"></textarea>
     <label>العروض</label><div id="ol"></div>
     <button class="btn" id="no">➕ عرض جديد</button>
     <button class="btn p" id="ex">📋 نسخ بيانات الزبائن</button>
@@ -163,13 +166,17 @@ $('sc').onchange=()=>{S.c=$('sc').value;sv('shop',S);calc();inv()};
 // Customer export
 $('fb').value=S.fb||'';
 $('fb').onchange=()=>{S.fb=$('fb').value.trim();sv('shop',S)};
+$('mp').value=S.mp||'';$('ad').value=S.ad||'';$('ph').value=S.ph||'';
+$('mp').onchange=()=>{S.mp=$('mp').value.trim();sv('shop',S)};
+$('ad').onchange=()=>{S.ad=$('ad').value.trim();sv('shop',S)};
+$('ph').onchange=()=>{S.ph=$('ph').value;sv('shop',S)};
 function ol(){
   $('ol').innerHTML=O.map((o,i)=>'<div style="margin-bottom:8px"><input data-o="'+i+'" data-k="t" placeholder="عنوان العرض" value="'+esc(o.t)+'" style="margin-bottom:6px"><input data-o="'+i+'" data-k="d" placeholder="تفاصيل العرض" value="'+esc(o.d)+'"><button class="btn" data-x="'+i+'" style="margin-top:6px;padding:8px">🗑 حذف العرض</button></div>').join('');
   $('ol').querySelectorAll('input').forEach(e=>e.onchange=()=>{O[+e.dataset.o][e.dataset.k]=e.value;sv('offers',O)});
   $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
 }
 $('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
-function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0})),offers:O.filter(o=>o.t||o.d)},null,1)}
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0})),offers:O.filter(o=>o.t||o.d)},null,1)}
 $('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
 ol();
