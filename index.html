@@ -41,7 +41,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
 .grid button{border:0;border-radius:14px;padding:16px 0;font-size:22px;background:var(--key);color:var(--fg);cursor:pointer}
 .grid .op{background:var(--ac);color:var(--acf)}
 .pi{margin-bottom:12px}.pi .pr{margin-bottom:6px}
-.pc{display:grid;grid-template-columns:1fr 110px;gap:6px}.pc input{font-size:15px;padding:9px}
+.pc{display:grid;grid-template-columns:1fr 92px 92px;gap:6px}.pc input{font-size:15px;padding:9px}
 .st{border:0;border-radius:10px;background:var(--key);color:var(--fg);font-size:14px;font-weight:700;cursor:pointer}.st.no{background:#b3361f;color:#fff}
 .sm{color:var(--mut);font-size:13px;line-height:1.7}
 
@@ -66,7 +66,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
     <label id="vl">الكمية (جرام)</label><input id="sv" type="number" inputmode="decimal" placeholder="0">
     <div class="chips" id="qk" style="margin-top:8px"></div>
     <div class="res">
-      <div><span>سعر الكيلو</span><b id="rk">0</b></div>
+      <div><span id="rkl">سعر الكيلو</span><b id="rk">0</b></div>
       <div class="big"><span id="rl">السعر</span><b id="rv">0</b></div>
     </div>
     <button class="btn p" id="add">➕ أضف للفاتورة</button>
@@ -83,7 +83,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
 <section id="list" class="hide">
   <div class="card">
     <b>الأصناف وسعر الكيلو</b>
-    <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال.</p>
+    <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال. الزر ⚖️/📦 يحدد هل السعر للكيلو أو للعبوة (مثل زيت شطارة، اكتب حجمها في الاسم).</p>
     <div id="pl"></div>
     <button class="btn p" id="np">➕ صنف جديد</button>
   </div>
@@ -149,6 +149,8 @@ let P=ld('prods',[['كمون',40],['كزبرة',30],['قرفة',60],['هيل',30
 let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]);
 const cur=()=>S.c?' '+S.c:'';
 let SL=ld('sales',[]);
+const lq=l=>l.u?l.q+' عبوة':l.g+' جم';
+const mq=o=>o.u?o.q+' عبوة':o.g+' جم';
 const f2=n=>(+n).toFixed(2);
 // Tabs
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
@@ -163,18 +165,20 @@ function fillSel(){const c=$('sp').value;$('sp').innerHTML=P.map((x,i)=>'<option
 function setMode(){document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x.dataset.m===mode));
   $('vl').textContent=mode==='g'?'الكمية (جرام)':'المبلغ المطلوب';$('rl').textContent=mode==='g'?'السعر':'الكمية (جرام)'}
 document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;setMode();calc()});
-let cg=0,cc=0;
+let cg=0,cc=0,cq=0;
 function calc(){
   const x=P[$('sp').value],v=+$('sv').value||0;
   if(!x){$('rk').textContent='0';$('rv').textContent='0';return}
-  const pg=x.p/1000;
-  if(mode==='g'){cg=v;cc=v*pg;$('rv').textContent=f2(cc)+cur()}else{cc=v;cg=pg?v/pg:0;$('rv').textContent=Math.round(cg)+' جرام'}
+  const u=!!x.u;$('mode').style.display=u?'none':'';$('qk').style.display=u?'none':'';
+  if(u){cq=Math.max(0,Math.round(v));cg=0;cc=cq*x.p;$('vl').textContent='العدد (عبوات)';$('rl').textContent='السعر';$('rkl').textContent='سعر العبوة';$('rv').textContent=f2(cc)+cur()}
+  else{cq=0;setMode();$('rkl').textContent='سعر الكيلو';const pg=x.p/1000;
+    if(mode==='g'){cg=v;cc=v*pg;$('rv').textContent=f2(cc)+cur()}else{cc=v;cg=pg?v/pg:0;$('rv').textContent=Math.round(cg)+' جرام'}}
   $('rk').textContent=f2(x.p)+cur();
 }
 $('sp').onchange=calc;$('sv').oninput=calc;
-$('add').onclick=()=>{const x=P[$('sp').value];if(!x||!cg)return;L.push({n:x.n,g:Math.round(cg),c:cc});sv('inv',L);$('sv').value='';calc();inv()};
+$('add').onclick=()=>{const x=P[$('sp').value];if(!x||(x.u?!cq:!cg))return;L.push(x.u?{n:x.n,g:0,q:cq,u:1,c:cc}:{n:x.n,g:Math.round(cg),c:cc});sv('inv',L);$('sv').value='';calc();inv()};
 function inv(){
-  let t=0;const h=L.map((l,i)=>{t+=l.c;return '<div><span>'+esc(l.n)+' — '+l.g+' جم</span><span>'+f2(l.c)+' <button class="x" data-i="'+i+'">✕</button></span></div>'}).join('');
+  let t=0;const h=L.map((l,i)=>{t+=l.c;return '<div><span>'+esc(l.n)+' — '+lq(l)+'</span><span>'+f2(l.c)+' <button class="x" data-i="'+i+'">✕</button></span></div>'}).join('');
   $('inv').innerHTML=(h||'<div style="color:var(--mut)">لا توجد أصناف بعد</div>')+'<div class="big"><span>الإجمالي</span><b>'+f2(t)+cur()+'</b></div>';
   $('inv').querySelectorAll('.x').forEach(b=>b.onclick=()=>{L.splice(+b.dataset.i,1);sv('inv',L);inv()});
 }
@@ -188,15 +192,16 @@ $('drop').onclick=()=>{if(L.length&&!confirm('مسح الفاتورة دون ح�
 
 $('share').onclick=async()=>{
   if(!L.length)return;let t=0;
-  const txt=S.n+'\n'+new Date().toLocaleDateString('ar-EG')+'\n\n'+L.map(l=>{t+=l.c;return l.n+' - '+l.g+' جم - '+f2(l.c)}).join('\n')+'\n\nالإجمالي: '+f2(t)+cur();
+  const txt=S.n+'\n'+new Date().toLocaleDateString('ar-EG')+'\n\n'+L.map(l=>{t+=l.c;return l.n+' - '+lq(l)+' - '+f2(l.c)}).join('\n')+'\n\nالإجمالي: '+f2(t)+cur();
   try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('تم نسخ الفاتورة')}}catch(e){}
 };
 // Price list
 const cats=()=>[...new Set(P.map(x=>x.c).filter(Boolean))];
 function plist(){
-  $('pl').innerHTML=P.map((x,i)=>'<div class="pi"><div class="pr"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div class="pc"><input list="cl" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c"><button class="st'+(x.o?' no':'')+'" data-s="'+i+'">'+(x.o?'❌ نفد':'✅ متوفر')+'</button></div></div>').join('')+'<datalist id="cl">'+cats().map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+  $('pl').innerHTML=P.map((x,i)=>'<div class="pi"><div class="pr"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div class="pc"><input list="cl" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c"><button class="st'+(x.o?' no':'')+'" data-s="'+i+'">'+(x.o?'❌ نفد':'✅ متوفر')+'</button><button class="st" data-u="'+i+'">'+(x.u?'📦 بالعبوة':'⚖️ بالكيلو')+'</button></div></div>').join('')+'<datalist id="cl">'+cats().map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
   $('pl').querySelectorAll('input[data-k]').forEach(e=>e.onchange=()=>{const k=e.dataset.k,i=+e.dataset.i;P[i][k]=k==='p'?(+e.value||0):e.value.trim();if(k==='c'&&!P[i].c)delete P[i].c;sv('prods',P);fillSel()});
   $('pl').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const x=P[+b.dataset.s];if(x.o)delete x.o;else x.o=1;sv('prods',P);plist();fillSel()});
+  $('pl').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{const x=P[+b.dataset.u];if(x.u)delete x.u;else x.u=1;sv('prods',P);plist();fillSel()});
   $('pl').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذا الصنف؟')){P.splice(+b.dataset.d,1);sv('prods',P);plist();fillSel()}});
 }
 
@@ -217,7 +222,7 @@ function ol(){
   $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
 }
 $('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
-function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=x.c;if(x.o)r.o=1;return r}),offers:O.filter(o=>o.t||o.d)},null,1)}
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=x.c;if(x.o)r.o=1;if(x.u)r.u=1;return r}),offers:O.filter(o=>o.t||o.d)},null,1)}
 $('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
 ol();
@@ -235,18 +240,18 @@ function press(k){
 // Daily report
 const dk=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 $('rd').value=dk();$('rd').onchange=drep;
-function agg(d){const a=SL.filter(s=>s.d===d);let t=0;const m={};a.forEach(s=>{t+=s.t;s.l.forEach(l=>{const o=m[l.n]||(m[l.n]={g:0,c:0});o.g+=l.g;o.c+=l.c})});return{a,t,m,ks:Object.keys(m).sort((x,y)=>m[y].c-m[x].c)}}
+function agg(d){const a=SL.filter(s=>s.d===d);let t=0;const m={};a.forEach(s=>{t+=s.t;s.l.forEach(l=>{const o=m[l.n]||(m[l.n]={g:0,q:0,u:0,c:0});o.g+=l.g;o.q+=l.q||0;if(l.u)o.u=1;o.c+=l.c})});return{a,t,m,ks:Object.keys(m).sort((x,y)=>m[y].c-m[x].c)}}
 function drep(){
   const d=$('rd').value||dk(),r=agg(d);
   const mo=SL.filter(s=>s.d.slice(0,7)===d.slice(0,7)).reduce((a,s)=>a+s.t,0);
   $('rs').innerHTML='<div class="big"><span>إجمالي اليوم</span><b>'+f2(r.t)+cur()+'</b></div><div><span>عدد الفواتير</span><b>'+r.a.length+'</b></div><div><span>إجمالي الشهر</span><b>'+f2(mo)+cur()+'</b></div>'
-   +(r.ks.length?'<div style="color:var(--mut);font-size:14px;border-top:1px solid var(--key);margin-top:6px;padding-top:10px"><span>الأصناف المباعة</span></div>'+r.ks.map(n=>'<div><span>'+esc(n)+' — '+r.m[n].g+' جم</span><b>'+f2(r.m[n].c)+'</b></div>').join(''):'<div style="color:var(--mut)">لا توجد مبيعات في هذا اليوم</div>');
+   +(r.ks.length?'<div style="color:var(--mut);font-size:14px;border-top:1px solid var(--key);margin-top:6px;padding-top:10px"><span>الأصناف المباعة</span></div>'+r.ks.map(n=>'<div><span>'+esc(n)+' — '+mq(r.m[n])+'</span><b>'+f2(r.m[n].c)+'</b></div>').join(''):'<div style="color:var(--mut)">لا توجد مبيعات في هذا اليوم</div>');
   $('rl').innerHTML=r.a.map(s=>'<div><span>'+new Date(s.id).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})+' • '+s.l.length+' أصناف</span><span>'+f2(s.t)+' <button class="x" data-r="'+s.id+'">✕</button></span></div>').join('')||'<div style="color:var(--mut)">لا توجد فواتير</div>';
   $('rl').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذه الفاتورة من التقرير؟')){SL=SL.filter(s=>String(s.id)!==b.dataset.r);sv('sales',SL);drep()}});
 }
 $('rsh').onclick=async()=>{
   const d=$('rd').value||dk(),r=agg(d);if(!r.a.length)return;
-  const txt=S.n+'\nتقرير مبيعات '+d+'\n\n'+r.ks.map(n=>n+' - '+r.m[n].g+' جم - '+f2(r.m[n].c)).join('\n')+'\n\nعدد الفواتير: '+r.a.length+'\nالإجمالي: '+f2(r.t)+cur();
+  const txt=S.n+'\nتقرير مبيعات '+d+'\n\n'+r.ks.map(n=>n+' - '+mq(r.m[n])+' - '+f2(r.m[n].c)).join('\n')+'\n\nعدد الفواتير: '+r.a.length+'\nالإجمالي: '+f2(r.t)+cur();
   try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('تم نسخ التقرير')}}catch(e){}
 };
 // Backup
@@ -263,7 +268,7 @@ function restore(t){
   try{
     const o=JSON.parse(t);if(!o||!Array.isArray(o.prods))throw 0;
     if(!confirm('سيتم استبدال البيانات الحالية بالنسخة. هل تريد المتابعة؟'))return;
-    P=o.prods.filter(x=>x&&typeof x.n==='string').map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=String(x.c);if(x.o)r.o=1;return r});
+    P=o.prods.filter(x=>x&&typeof x.n==='string').map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=String(x.c);if(x.o)r.o=1;if(x.u)r.u=1;return r});
     S=o.shop&&typeof o.shop==='object'?o.shop:{n:'عيسى العطار',c:''};
     O=Array.isArray(o.offers)?o.offers:[];
     SL=Array.isArray(o.sales)?o.sales.filter(s=>s&&typeof s.d==='string'&&Array.isArray(s.l)):[];
