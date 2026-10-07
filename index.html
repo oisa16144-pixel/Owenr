@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عيسى العطار</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14663d">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f6f1e7;--card:#fffdf8;--fg:#2b2218;--mut:#7a6a55;--ac:#14663d;--acf:#fff;--key:#ece3d2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120c;--card:#241c12;--fg:#f3e9d8;--mut:#b4a285;--ac:#d9a050;--acf:#1d1507;--key:#33281a}}
+:root[data-theme="dark"]{--bg:#17120c;--card:#241c12;--fg:#f3e9d8;--mut:#b4a285;--ac:#d9a050;--acf:#1d1507;--key:#33281a}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 14px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:var(--card);padding:5px;border-radius:14px;margin-bottom:14px}
+.tabs button{border:0;background:none;color:var(--mut);padding:10px 2px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--ac);color:var(--acf)}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px}
+.hide{display:none}
+label{display:block;color:var(--mut);font-size:14px;margin:12px 0 6px}
+input,select{width:100%;padding:12px;font-size:18px;border-radius:12px;border:1px solid var(--key);background:var(--bg);color:var(--fg)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button,.btn{flex:1;padding:10px 6px;border-radius:10px;border:0;background:var(--key);color:var(--fg);font-size:16px;cursor:pointer}
+.chips button.on,.btn.p{background:var(--ac);color:var(--acf);font-weight:700}
+.btn{width:100%;margin-top:10px;padding:13px}
+.res{margin-top:14px;border-top:1px solid var(--key);padding-top:10px}
+.res div{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:17px;gap:8px}
+.big{font-size:22px!important;font-weight:700;color:var(--ac)}
+.x{flex:0 0 auto;border:0;background:var(--key);color:var(--fg);border-radius:8px;width:32px;height:32px;cursor:pointer}
+.pr{display:grid;grid-template-columns:1fr 90px 36px;gap:6px;margin-bottom:8px}
+.pr input{font-size:16px;padding:10px}
+#disp{direction:ltr;text-align:left;font-size:40px;min-height:56px;overflow-x:auto;white-space:nowrap;padding:6px 4px 12px}
+#sub{direction:ltr;text-align:left;color:var(--mut);min-height:20px;padding:0 4px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;direction:ltr}
+.grid button{border:0;border-radius:14px;padding:16px 0;font-size:22px;background:var(--key);color:var(--fg);cursor:pointer}
+.grid .op{background:var(--ac);color:var(--acf)}
+</style>
+</head>
+<body>
+<main>
+<h1 id="title">🌿 عيسى العطار</h1>
+<div class="tabs">
+  <button class="on" data-t="sell">البيع</button>
+  <button data-t="list">الأسعار</button>
+  <button data-t="calc">الحاسبة</button>
+  <button data-t="inst">تثبيت</button>
+</div>
+
+<section id="sell">
+  <div class="card">
+    <label>الصنف</label><select id="sp"></select>
+    <label>طريقة الحساب</label>
+    <div class="chips" id="mode"><button class="on" data-m="g">بالجرام</button><button data-m="m">بالمبلغ</button></div>
+    <label id="vl">الكمية (جرام)</label><input id="sv" type="number" inputmode="decimal" placeholder="0">
+    <div class="chips" id="qk" style="margin-top:8px"></div>
+    <div class="res">
+      <div><span>سعر الكيلو</span><b id="rk">0</b></div>
+      <div class="big"><span id="rl">السعر</span><b id="rv">0</b></div>
+    </div>
+    <button class="btn p" id="add">➕ أضف للفاتورة</button>
+  </div>
+  <div class="card">
+    <b>الفاتورة</b>
+    <div class="res" id="inv"></div>
+    <button class="btn" id="share">📤 مشاركة / نسخ الفاتورة</button>
+    <button class="btn" id="clr">🧹 فاتورة جديدة</button>
+  </div>
+</section>
+
+<section id="list" class="hide">
+  <div class="card">
+    <b>الأصناف وسعر الكيلو</b>
+    <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال.</p>
+    <div id="pl"></div>
+    <button class="btn p" id="np">➕ صنف جديد</button>
+  </div>
+  <div class="card">
+    <label style="margin-top:0">اسم المحل</label><input id="sn">
+    <label>العملة (اختياري)</label><input id="sc" placeholder="مثال: ريال">
+  </div>
+  <div class="card">
+    <b>📣 للزبائن</b>
+    <label>رابط صفحة الفيس بوك</label><input id="fb" dir="ltr" placeholder="https://www.facebook.com/صفحتك">
+    <label>العروض</label><div id="ol"></div>
+    <button class="btn" id="no">➕ عرض جديد</button>
+    <button class="btn p" id="ex">📋 نسخ بيانات الزبائن</button>
+    <button class="btn" id="dl">💾 حفظ كملف prices.json</button>
+    <div id="exm" style="color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7"></div>
+  </div>
+</section>
+
+<section id="calc" class="card hide">
+  <div id="sub"></div><div id="disp">0</div>
+  <div class="grid" id="keys"></div>
+</section>
+
+<section id="inst" class="card hide">
+  <b>📲 تثبيت التطبيق</b>
+  <p id="is" style="color:var(--mut);line-height:1.8">يعمل التطبيق بدون إنترنت بعد فتحه مرة واحدة. ثبّته ليظهر على شاشة جوالك كأي تطبيق.</p>
+  <button class="btn p hide" id="ib">⬇️ تثبيت الآن</button>
+  <p style="color:var(--mut);line-height:1.8;font-size:14px">إن لم يظهر زر التثبيت: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let P=ld('prods',[['كمون',40],['كزبرة',30],['قرفة',60],['هيل',300],['زنجبيل',50],['ينسون',45],['حبة البركة',70]].map(a=>({n:a[0],p:a[1]})));
+let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]);
+const cur=()=>S.c?' '+S.c:'';
+const f2=n=>(+n).toFixed(2);
+// Tabs
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['sell','list','calc','inst'].forEach(s=>$(s).classList.toggle('hide',s!==b.dataset.t));
+  
+});
+function head(){$('title').textContent='🌿 '+S.n;document.title=S.n}
+// Sell
+function fillSel(){const c=$('sp').value;$('sp').innerHTML=P.map((x,i)=>'<option value="'+i+'">'+esc(x.n)+'</option>').join('');if(c&&P[c])$('sp').value=c;calc()}
+[50,100,250,500,1000].forEach(g=>{const b=document.createElement('button');b.textContent=g>=1000?'كيلو':g;b.onclick=()=>{mode='g';setMode();$('sv').value=g;calc()};$('qk').appendChild(b)});
+function setMode(){document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x.dataset.m===mode));
+  $('vl').textContent=mode==='g'?'الكمية (جرام)':'المبلغ المطلوب';$('rl').textContent=mode==='g'?'السعر':'الكمية (جرام)'}
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;setMode();calc()});
+let cg=0,cc=0;
+function calc(){
+  const x=P[$('sp').value],v=+$('sv').value||0;
+  if(!x){$('rk').textContent='0';$('rv').textContent='0';return}
+  const pg=x.p/1000;
+  if(mode==='g'){cg=v;cc=v*pg;$('rv').textContent=f2(cc)+cur()}else{cc=v;cg=pg?v/pg:0;$('rv').textContent=Math.round(cg)+' جرام'}
+  $('rk').textContent=f2(x.p)+cur();
+}
+$('sp').onchange=calc;$('sv').oninput=calc;
+$('add').onclick=()=>{const x=P[$('sp').value];if(!x||!cg)return;L.push({n:x.n,g:Math.round(cg),c:cc});sv('inv',L);$('sv').value='';calc();inv()};
+function inv(){
+  let t=0;const h=L.map((l,i)=>{t+=l.c;return '<div><span>'+esc(l.n)+' — '+l.g+' جم</span><span>'+f2(l.c)+' <button class="x" data-i="'+i+'">✕</button></span></div>'}).join('');
+  $('inv').innerHTML=(h||'<div style="color:var(--mut)">لا توجد أصناف بعد</div>')+'<div class="big"><span>الإجمالي</span><b>'+f2(t)+cur()+'</b></div>';
+  $('inv').querySelectorAll('.x').forEach(b=>b.onclick=()=>{L.splice(+b.dataset.i,1);sv('inv',L);inv()});
+}
+$('clr').onclick=()=>{L=[];sv('inv',L);inv()};
+$('share').onclick=async()=>{
+  if(!L.length)return;let t=0;
+  const txt=S.n+'\n'+new Date().toLocaleDateString('ar-EG')+'\n\n'+L.map(l=>{t+=l.c;return l.n+' - '+l.g+' جم - '+f2(l.c)}).join('\n')+'\n\nالإجمالي: '+f2(t)+cur();
+  try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('تم نسخ الفاتورة')}}catch(e){}
+};
+// Price list
+function plist(){
+  $('pl').innerHTML=P.map((x,i)=>'<div class="pr"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div>').join('');
+  $('pl').querySelectorAll('input').forEach(e=>e.onchange=()=>{P[+e.dataset.i][e.dataset.k]=e.dataset.k==='p'?(+e.value||0):e.value;sv('prods',P);fillSel()});
+  $('pl').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذا الصنف؟')){P.splice(+b.dataset.d,1);sv('prods',P);plist();fillSel()}});
+}
+$('np').onclick=()=>{P.push({n:'صنف جديد',p:0});sv('prods',P);plist();fillSel()};
+$('sn').value=S.n;$('sc').value=S.c;
+$('sn').onchange=()=>{S.n=$('sn').value||'عيسى العطار';sv('shop',S);head()};
+$('sc').onchange=()=>{S.c=$('sc').value;sv('shop',S);calc();inv()};
+// Customer export
+$('fb').value=S.fb||'';
+$('fb').onchange=()=>{S.fb=$('fb').value.trim();sv('shop',S)};
+function ol(){
+  $('ol').innerHTML=O.map((o,i)=>'<div style="margin-bottom:8px"><input data-o="'+i+'" data-k="t" placeholder="عنوان العرض" value="'+esc(o.t)+'" style="margin-bottom:6px"><input data-o="'+i+'" data-k="d" placeholder="تفاصيل العرض" value="'+esc(o.d)+'"><button class="btn" data-x="'+i+'" style="margin-top:6px;padding:8px">🗑 حذف العرض</button></div>').join('');
+  $('ol').querySelectorAll('input').forEach(e=>e.onchange=()=>{O[+e.dataset.o][e.dataset.k]=e.value;sv('offers',O)});
+  $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
+}
+$('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0})),offers:O.filter(o=>o.t||o.d)},null,1)}
+$('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
+$('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
+ol();
+// Calculator
+let ex='';
+['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','(',')'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if('÷×−+'.includes(k))b.className='op';b.onclick=()=>press(k);$('keys').appendChild(b)});
+const eq=document.createElement('button');eq.textContent='=';eq.className='op';eq.style.gridColumn='span 4';eq.onclick=()=>press('=');$('keys').appendChild(eq);
+function press(k){
+  if(k==='C'){ex='';$('sub').textContent=''}else if(k==='⌫')ex=ex.slice(0,-1);
+  else if(k==='='){try{const s=ex.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/(\d+(\.\d+)?)%/g,'($1/100)');
+    if(!/^[0-9+\-*/.()\s]+$/.test(s))throw 0;const r=Function('"use strict";return ('+s+')')();if(!isFinite(r))throw 0;
+    $('sub').textContent=ex+' =';ex=String(+r.toFixed(10))}catch(e){$('sub').textContent='خطأ';ex=''}}
+  else ex+=k;$('disp').textContent=ex||'0';
+}
+// Install + offline
+let dp=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('ib').classList.remove('hide')});
+$('ib').onclick=async()=>{if(dp){dp.prompt();dp=null;$('ib').classList.add('hide')}};
+addEventListener('appinstalled',()=>{$('is').textContent='✅ تم تثبيت التطبيق'});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+head();setMode();plist();fillSel();inv();
+</script>
+</body>
+</html>
