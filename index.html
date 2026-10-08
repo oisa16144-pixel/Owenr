@@ -18,7 +18,7 @@
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
 main{max-width:480px;margin:0 auto;padding:16px}
 h1{font-size:22px;margin:4px 0 14px}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:var(--card);padding:5px;border-radius:14px;margin-bottom:14px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--card);padding:5px;border-radius:14px;margin-bottom:14px}
 .tabs button{border:0;background:none;color:var(--mut);padding:10px 1px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
 .tabs button.on{background:var(--ac);color:var(--acf)}
 .card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px}
@@ -40,11 +40,6 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;direction:ltr}
 .grid button{border:0;border-radius:14px;padding:16px 0;font-size:22px;background:var(--key);color:var(--fg);cursor:pointer}
 .grid .op{background:var(--ac);color:var(--acf)}
-.pi{margin-bottom:12px}.pi .pr{margin-bottom:6px}
-.pc{display:grid;grid-template-columns:1fr 92px 92px;gap:6px}.pc input{font-size:15px;padding:9px}
-.st{border:0;border-radius:10px;background:var(--key);color:var(--fg);font-size:14px;font-weight:700;cursor:pointer}.st.no{background:#b3361f;color:#fff}
-.sm{color:var(--mut);font-size:13px;line-height:1.7}
-
 </style>
 </head>
 <body>
@@ -55,7 +50,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
   <button data-t="list">الأسعار</button>
   <button data-t="rep">التقرير</button>
   <button data-t="calc">الحاسبة</button>
-  <button data-t="inst" id="tabi">المزيد</button>
+  <button data-t="inst">تثبيت</button>
 </div>
 
 <section id="sell">
@@ -75,15 +70,15 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
     <b>الفاتورة</b>
     <div class="res" id="inv"></div>
     <button class="btn" id="share">📤 مشاركة / نسخ الفاتورة</button>
-    <button class="btn p" id="clr">✅ إتمام البيع وفاتورة جديدة</button>
-    <button class="btn" id="drop">🧹 مسح بدون حفظ في التقرير</button>
+    <button class="btn p" id="done">✅ إتمام البيع وفاتورة جديدة</button>
+    <button class="btn" id="clr">🧹 مسح بدون حفظ</button>
   </div>
 </section>
 
 <section id="list" class="hide">
   <div class="card">
-    <b>الأصناف وسعر الكيلو</b>
-    <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال. الزر ⚖️/📦 يحدد هل السعر للكيلو أو للعبوة (مثل زيت شطارة، اكتب حجمها في الاسم).</p>
+    <b>الأصناف والأسعار</b>
+    <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال.</p>
     <div id="pl"></div>
     <button class="btn p" id="np">➕ صنف جديد</button>
   </div>
@@ -94,6 +89,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
   <div class="card">
     <b>📣 للزبائن</b>
     <label>رابط صفحة الفيس بوك</label><input id="fb" dir="ltr" placeholder="https://www.facebook.com/صفحتك">
+    <label>رقم واتساب لاستقبال طلبات الزبائن (+966...)</label><input id="wa" dir="ltr" placeholder="+966500000000">
     <label>رابط موقع المحل (خرائط جوجل)</label><input id="mp" dir="ltr" placeholder="https://maps.app.goo.gl/...">
     <label>العنوان (اختياري)</label><input id="ad" placeholder="مثال: الحي الفلاني، بجانب...">
     <label>أرقام الهاتف (رقم في كل سطر، ويُفضّل بصيغة +966...)</label><textarea id="ph" rows="3" dir="ltr" placeholder="+966500000000"></textarea>
@@ -103,20 +99,24 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
     <button class="btn" id="dl">💾 حفظ كملف prices.json</button>
     <div id="exm" style="color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7"></div>
   </div>
+  <div class="card">
+    <b>💾 النسخة الاحتياطية</b>
+    <p style="color:var(--mut);font-size:13px;margin:6px 0 0;line-height:1.7">احفظ نسخة من أصنافك وأسعارك وعروضك وسجل مبيعاتك، واسترجعها إن غيّرت الجوال.</p>
+    <button class="btn" id="bk">💾 حفظ نسخة احتياطية</button>
+    <button class="btn" id="rs">📂 استرجاع من نسخة</button>
+    <input type="file" id="rfl" accept=".json,application/json" class="hide">
+    <div id="bm" style="color:var(--mut);font-size:13px;margin-top:8px"></div>
+  </div>
 </section>
 
 <section id="rep" class="hide">
   <div class="card">
-    <label style="margin-top:0">اختر اليوم</label><input id="rd" type="date">
-    <div class="res" id="rs"></div>
-    <button class="btn" id="rsh">📤 مشاركة / نسخ تقرير اليوم</button>
-  </div>
-  <div class="card">
-    <b>فواتير اليوم</b>
-    <div class="res" id="rl"></div>
+    <label style="margin-top:0">اليوم</label><input id="rd" type="date">
+    <div class="res" id="rr"></div>
+    <button class="btn p" id="rc">📋 نسخ التقرير</button>
+    <button class="btn" id="rx">🗑 مسح سجل المبيعات كله</button>
   </div>
 </section>
-
 
 <section id="calc" class="card hide">
   <div id="sub"></div><div id="disp">0</div>
@@ -128,16 +128,6 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
   <p id="is" style="color:var(--mut);line-height:1.8">يعمل التطبيق بدون إنترنت بعد فتحه مرة واحدة. ثبّته ليظهر على شاشة جوالك كأي تطبيق.</p>
   <button class="btn p hide" id="ib">⬇️ تثبيت الآن</button>
   <p style="color:var(--mut);line-height:1.8;font-size:14px">إن لم يظهر زر التثبيت: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».</p>
-<hr style="border:0;border-top:1px solid var(--key);margin:16px 0">
-  <b>💾 النسخة الاحتياطية</b>
-  <p class="sm">تحفظ أسعارك وأصنافك وعروضك وتقرير المبيعات. احفظ نسخة كل أسبوع تقريباً، وأرسلها لنفسك على واتساب أو بريدك.</p>
-  <div class="sm" id="bm"></div>
-  <button class="btn p" id="bd">💾 حفظ نسخة احتياطية (ملف)</button>
-  <button class="btn" id="bc">📋 نسخ النسخة كنص</button>
-  <label>استرجاع من ملف</label><input id="bf" type="file" accept=".json,application/json">
-  <label>أو الصق نص النسخة هنا</label><textarea id="bt" rows="3" dir="ltr"></textarea>
-  <button class="btn" id="br">📥 استرجاع من النص</button>
-
 </section>
 </main>
 <script>
@@ -146,65 +136,60 @@ const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}ca
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let P=ld('prods',[['كمون',40],['كزبرة',30],['قرفة',60],['هيل',300],['زنجبيل',50],['ينسون',45],['حبة البركة',70]].map(a=>({n:a[0],p:a[1]})));
-let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]);
+let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]),H=ld('sales',[]),RT=null;
 const cur=()=>S.c?' '+S.c:'';
-let SL=ld('sales',[]);
-const lq=l=>l.u?l.q+' عبوة':l.g+' جم';
-const mq=o=>o.u?o.q+' عبوة':o.g+' جم';
 const f2=n=>(+n).toFixed(2);
 // Tabs
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
-  ['sell','list','rep','calc','inst'].forEach(s=>$(s).classList.toggle('hide',s!==b.dataset.t));if(b.dataset.t==='rep')drep();if(b.dataset.t==='inst')bkm();
+  ['sell','list','calc','inst','rep'].forEach(s=>$(s).classList.toggle('hide',s!==b.dataset.t));if(b.dataset.t==='rep')rep();
   
 });
 function head(){$('title').textContent='🌿 '+S.n;document.title=S.n}
 // Sell
-function fillSel(){const c=$('sp').value;$('sp').innerHTML=P.map((x,i)=>'<option value="'+i+'">'+esc(x.n)+(x.o?' (نفد)':'')+'</option>').join('');if(c&&P[c])$('sp').value=c;calc()}
-[50,100,250,500,1000].forEach(g=>{const b=document.createElement('button');b.textContent=g>=1000?'كيلو':g;b.onclick=()=>{mode='g';setMode();$('sv').value=g;calc()};$('qk').appendChild(b)});
-function setMode(){document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x.dataset.m===mode));
-  $('vl').textContent=mode==='g'?'الكمية (جرام)':'المبلغ المطلوب';$('rl').textContent=mode==='g'?'السعر':'الكمية (جرام)'}
+function fillSel(){const c=$('sp').value;$('sp').innerHTML=P.map((x,i)=>'<option value="'+i+'">'+esc(x.n)+(x.o?' (نفد)':'')+'</option>').join('');if(c&&P[c])$('sp').value=c;setMode();qk();calc()}
+const isPc=()=>{const x=P[$('sp').value];return !!x&&x.u==='pc'};
+function qk(){
+  const pc=isPc(),box=$('qk');box.innerHTML='';
+  (pc?[1,2,3,6,12]:[50,100,250,500,1000]).forEach(g=>{const b=document.createElement('button');b.textContent=pc?String(g):(g>=1000?'كيلو':g);b.onclick=()=>{if(!pc){mode='g';setMode()}$('sv').value=g;calc()};box.appendChild(b)});
+}
+function setMode(){
+  const pc=isPc();
+  document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x.dataset.m===mode));
+  $('mode').style.display=pc?'none':'';
+  $('vl').textContent=pc?'العدد (عبوة)':mode==='g'?'الكمية (جرام)':'المبلغ المطلوب';
+  $('rl').textContent=pc?'السعر':mode==='g'?'السعر':'الكمية (جرام)';
+  $('rkl').textContent=pc?'سعر العبوة':'سعر الكيلو';
+}
 document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;setMode();calc()});
 let cg=0,cc=0,cq=0;
 function calc(){
   const x=P[$('sp').value],v=+$('sv').value||0;
   if(!x){$('rk').textContent='0';$('rv').textContent='0';return}
-  const u=!!x.u;$('mode').style.display=u?'none':'';$('qk').style.display=u?'none':'';
-  if(u){cq=Math.max(0,Math.round(v));cg=0;cc=cq*x.p;$('vl').textContent='العدد (عبوات)';$('rl').textContent='السعر';$('rkl').textContent='سعر العبوة';$('rv').textContent=f2(cc)+cur()}
-  else{cq=0;setMode();$('rkl').textContent='سعر الكيلو';const pg=x.p/1000;
-    if(mode==='g'){cg=v;cc=v*pg;$('rv').textContent=f2(cc)+cur()}else{cc=v;cg=pg?v/pg:0;$('rv').textContent=Math.round(cg)+' جرام'}}
+  if(x.u==='pc'){cq=Math.round(v);cg=0;cc=cq*x.p;$('rv').textContent=f2(cc)+cur()}
+  else{const pg=x.p/1000;cq=0;if(mode==='g'){cg=v;cc=v*pg;$('rv').textContent=f2(cc)+cur()}else{cc=v;cg=pg?v/pg:0;$('rv').textContent=Math.round(cg)+' جرام'}}
   $('rk').textContent=f2(x.p)+cur();
 }
-$('sp').onchange=calc;$('sv').oninput=calc;
-$('add').onclick=()=>{const x=P[$('sp').value];if(!x||(x.u?!cq:!cg))return;L.push(x.u?{n:x.n,g:0,q:cq,u:1,c:cc}:{n:x.n,g:Math.round(cg),c:cc});sv('inv',L);$('sv').value='';calc();inv()};
+$('sp').onchange=()=>{setMode();qk();calc()};$('sv').oninput=calc;
+$('add').onclick=()=>{const x=P[$('sp').value];if(!x)return;if(x.u==='pc'){if(!cq)return;L.push({n:x.n,g:0,c:cc,u:'pc',q:cq})}else{if(!cg)return;L.push({n:x.n,g:Math.round(cg),c:cc})}sv('inv',L);$('sv').value='';calc();inv()};
 function inv(){
-  let t=0;const h=L.map((l,i)=>{t+=l.c;return '<div><span>'+esc(l.n)+' — '+lq(l)+'</span><span>'+f2(l.c)+' <button class="x" data-i="'+i+'">✕</button></span></div>'}).join('');
+  let t=0;const h=L.map((l,i)=>{t+=l.c;return '<div><span>'+esc(l.n)+' — '+(l.u==='pc'?l.q+' عبوة':l.g+' جم')+'</span><span>'+f2(l.c)+' <button class="x" data-i="'+i+'">✕</button></span></div>'}).join('');
   $('inv').innerHTML=(h||'<div style="color:var(--mut)">لا توجد أصناف بعد</div>')+'<div class="big"><span>الإجمالي</span><b>'+f2(t)+cur()+'</b></div>';
   $('inv').querySelectorAll('.x').forEach(b=>b.onclick=()=>{L.splice(+b.dataset.i,1);sv('inv',L);inv()});
 }
-$('clr').onclick=()=>{
-  if(!L.length)return;
-  const t=L.reduce((a,l)=>a+l.c,0);
-  SL.push({id:Date.now(),d:dk(),t:Math.round(t*100)/100,l:L});sv('sales',SL);
-  L=[];sv('inv',L);inv();
-};
-$('drop').onclick=()=>{if(L.length&&!confirm('مسح الفاتورة دون حفظها في التقرير؟'))return;L=[];sv('inv',L);inv()};
-
+$('done').onclick=()=>{if(!L.length)return;H.push({t:new Date().toISOString(),l:L.map(x=>({n:x.n,g:x.g,c:x.c,u:x.u,q:x.q})),tot:L.reduce((a,x)=>a+x.c,0)});sv('sales',H);L=[];sv('inv',L);inv()};
+$('clr').onclick=()=>{L=[];sv('inv',L);inv()};
 $('share').onclick=async()=>{
   if(!L.length)return;let t=0;
-  const txt=S.n+'\n'+new Date().toLocaleDateString('ar-EG')+'\n\n'+L.map(l=>{t+=l.c;return l.n+' - '+lq(l)+' - '+f2(l.c)}).join('\n')+'\n\nالإجمالي: '+f2(t)+cur();
+  const txt=S.n+'\n'+new Date().toLocaleDateString('ar-EG')+'\n\n'+L.map(l=>{t+=l.c;return l.n+' - '+(l.u==='pc'?l.q+' عبوة':l.g+' جم')+' - '+f2(l.c)}).join('\n')+'\n\nالإجمالي: '+f2(t)+cur();
   try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('تم نسخ الفاتورة')}}catch(e){}
 };
 // Price list
-const cats=()=>[...new Set(P.map(x=>x.c).filter(Boolean))];
 function plist(){
-  $('pl').innerHTML=P.map((x,i)=>'<div class="pi"><div class="pr"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div class="pc"><input list="cl" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c"><button class="st'+(x.o?' no':'')+'" data-s="'+i+'">'+(x.o?'❌ نفد':'✅ متوفر')+'</button><button class="st" data-u="'+i+'">'+(x.u?'📦 بالعبوة':'⚖️ بالكيلو')+'</button></div></div>').join('')+'<datalist id="cl">'+cats().map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
-  $('pl').querySelectorAll('input[data-k]').forEach(e=>e.onchange=()=>{const k=e.dataset.k,i=+e.dataset.i;P[i][k]=k==='p'?(+e.value||0):e.value.trim();if(k==='c'&&!P[i].c)delete P[i].c;sv('prods',P);fillSel()});
-  $('pl').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const x=P[+b.dataset.s];if(x.o)delete x.o;else x.o=1;sv('prods',P);plist();fillSel()});
-  $('pl').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{const x=P[+b.dataset.u];if(x.u)delete x.u;else x.u=1;sv('prods',P);plist();fillSel()});
+  $('pl').innerHTML=P.map((x,i)=>'<div style="margin-bottom:14px"><div class="pr" style="margin-bottom:6px"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px"><input list="cats" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c" style="font-size:15px;padding:9px"><select data-i="'+i+'" data-k="u" style="font-size:15px;padding:9px"><option value="kg"'+(x.u==='pc'?'':' selected')+'>السعر للكيلو</option><option value="pc"'+(x.u==='pc'?' selected':'')+'>السعر للعبوة</option></select></div><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.o?'checked':'')+' data-i="'+i+'" data-k="o"> نفد (غير متوفر)</label></div>').join('')+'<datalist id="cats">'+[...new Set(P.map(x=>x.c).filter(Boolean))].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+  $('pl').querySelectorAll('input,select').forEach(e=>e.onchange=()=>{const x=P[+e.dataset.i],k=e.dataset.k;x[k]=k==='p'?(+e.value||0):k==='o'?e.checked:e.value;sv('prods',P);fillSel()});
   $('pl').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذا الصنف؟')){P.splice(+b.dataset.d,1);sv('prods',P);plist();fillSel()}});
 }
-
 $('np').onclick=()=>{P.push({n:'صنف جديد',p:0});sv('prods',P);plist();fillSel()};
 $('sn').value=S.n;$('sc').value=S.c;
 $('sn').onchange=()=>{S.n=$('sn').value||'عيسى العطار';sv('shop',S);head()};
@@ -212,20 +197,36 @@ $('sc').onchange=()=>{S.c=$('sc').value;sv('shop',S);calc();inv()};
 // Customer export
 $('fb').value=S.fb||'';
 $('fb').onchange=()=>{S.fb=$('fb').value.trim();sv('shop',S)};
-$('mp').value=S.mp||'';$('ad').value=S.ad||'';$('ph').value=S.ph||'';
+$('mp').value=S.mp||'';$('ad').value=S.ad||'';$('ph').value=S.ph||'';$('wa').value=S.wa||'';
 $('mp').onchange=()=>{S.mp=$('mp').value.trim();sv('shop',S)};
 $('ad').onchange=()=>{S.ad=$('ad').value.trim();sv('shop',S)};
 $('ph').onchange=()=>{S.ph=$('ph').value;sv('shop',S)};
+$('wa').onchange=()=>{S.wa=$('wa').value.trim();sv('shop',S)};
 function ol(){
   $('ol').innerHTML=O.map((o,i)=>'<div style="margin-bottom:8px"><input data-o="'+i+'" data-k="t" placeholder="عنوان العرض" value="'+esc(o.t)+'" style="margin-bottom:6px"><input data-o="'+i+'" data-k="d" placeholder="تفاصيل العرض" value="'+esc(o.d)+'"><button class="btn" data-x="'+i+'" style="margin-top:6px;padding:8px">🗑 حذف العرض</button></div>').join('');
   $('ol').querySelectorAll('input').forEach(e=>e.onchange=()=>{O[+e.dataset.o][e.dataset.k]=e.value;sv('offers',O)});
   $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
 }
 $('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
-function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=x.c;if(x.o)r.o=1;if(x.u)r.u=1;return r}),offers:O.filter(o=>o.t||o.d)},null,1)}
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',wa:S.wa||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0,c:x.c||'',o:!!x.o,u:x.u==='pc'?'pc':'kg'})),offers:O.filter(o=>o.t||o.d)},null,1)}
 $('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
 ol();
+function dt(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function rep(){
+  const d=$('rd').value||dt(),ds=H.filter(h=>dt(new Date(h.t))===d);
+  let tot=0;const m={};
+  ds.forEach(h=>{tot+=h.tot;h.l.forEach(l=>{m[l.n]=m[l.n]||{g:0,c:0,q:0,u:l.u};m[l.n].g+=l.g;m[l.n].q+=(l.q||0);m[l.n].c+=l.c})});
+  const top=Object.entries(m).sort((a,b)=>b[1].c-a[1].c);
+  RT={d,n:ds.length,tot,top};
+  $('rr').innerHTML='<div class="big"><span>إجمالي المبيعات</span><b>'+f2(tot)+cur()+'</b></div><div><span>عدد الفواتير</span><b>'+ds.length+'</b></div>'+(top.length?'<div style="color:var(--mut);padding-top:10px"><span>المبيعات حسب الصنف</span></div>'+top.map(e=>'<div><span>'+esc(e[0])+' — '+(e[1].u==='pc'?e[1].q+' عبوة':Math.round(e[1].g)+' جم')+'</span><b>'+f2(e[1].c)+'</b></div>').join(''):'<div style="color:var(--mut)">لا توجد مبيعات في هذا اليوم</div>');
+}
+$('rd').value=dt();$('rd').oninput=rep;rep();
+$('rc').onclick=async()=>{rep();const t=S.n+'\nتقرير مبيعات يوم '+RT.d+'\n\nعدد الفواتير: '+RT.n+'\nالإجمالي: '+f2(RT.tot)+cur()+'\n\n'+RT.top.map(e=>e[0]+' - '+(e[1].u==='pc'?e[1].q+' عبوة':Math.round(e[1].g)+' جم')+' - '+f2(e[1].c)).join('\n');try{await navigator.clipboard.writeText(t);alert('تم نسخ التقرير')}catch(e){alert('تعذّر النسخ')}};
+$('rx').onclick=()=>{if(confirm('مسح كل سجل المبيعات؟ لا يمكن التراجع.')){H=[];sv('sales',H);rep()}};
+$('bk').onclick=()=>{const b={v:1,at:new Date().toISOString(),prods:P,shop:S,offers:O,sales:H},a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(b)],{type:'application/json'}));a.download='attar-backup-'+dt()+'.json';a.click();$('bm').textContent='✅ تم حفظ النسخة في التنزيلات.'};
+$('rs').onclick=()=>$('rfl').click();
+$('rfl').onchange=async()=>{const f=$('rfl').files[0];if(!f)return;try{const b=JSON.parse(await f.text());if(!Array.isArray(b.prods))throw 0;if(!confirm('سيتم استبدال بياناتك الحالية بالنسخة. متابعة؟'))return;sv('prods',b.prods);sv('shop',b.shop||S);sv('offers',b.offers||[]);sv('sales',b.sales||[]);location.reload()}catch(e){$('bm').textContent='⚠️ الملف غير صالح.'}$('rfl').value=''};
 // Calculator
 let ex='';
 ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','(',')'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if('÷×−+'.includes(k))b.className='op';b.onclick=()=>press(k);$('keys').appendChild(b)});
@@ -237,57 +238,13 @@ function press(k){
     $('sub').textContent=ex+' =';ex=String(+r.toFixed(10))}catch(e){$('sub').textContent='خطأ';ex=''}}
   else ex+=k;$('disp').textContent=ex||'0';
 }
-// Daily report
-const dk=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-$('rd').value=dk();$('rd').onchange=drep;
-function agg(d){const a=SL.filter(s=>s.d===d);let t=0;const m={};a.forEach(s=>{t+=s.t;s.l.forEach(l=>{const o=m[l.n]||(m[l.n]={g:0,q:0,u:0,c:0});o.g+=l.g;o.q+=l.q||0;if(l.u)o.u=1;o.c+=l.c})});return{a,t,m,ks:Object.keys(m).sort((x,y)=>m[y].c-m[x].c)}}
-function drep(){
-  const d=$('rd').value||dk(),r=agg(d);
-  const mo=SL.filter(s=>s.d.slice(0,7)===d.slice(0,7)).reduce((a,s)=>a+s.t,0);
-  $('rs').innerHTML='<div class="big"><span>إجمالي اليوم</span><b>'+f2(r.t)+cur()+'</b></div><div><span>عدد الفواتير</span><b>'+r.a.length+'</b></div><div><span>إجمالي الشهر</span><b>'+f2(mo)+cur()+'</b></div>'
-   +(r.ks.length?'<div style="color:var(--mut);font-size:14px;border-top:1px solid var(--key);margin-top:6px;padding-top:10px"><span>الأصناف المباعة</span></div>'+r.ks.map(n=>'<div><span>'+esc(n)+' — '+mq(r.m[n])+'</span><b>'+f2(r.m[n].c)+'</b></div>').join(''):'<div style="color:var(--mut)">لا توجد مبيعات في هذا اليوم</div>');
-  $('rl').innerHTML=r.a.map(s=>'<div><span>'+new Date(s.id).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})+' • '+s.l.length+' أصناف</span><span>'+f2(s.t)+' <button class="x" data-r="'+s.id+'">✕</button></span></div>').join('')||'<div style="color:var(--mut)">لا توجد فواتير</div>';
-  $('rl').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذه الفاتورة من التقرير؟')){SL=SL.filter(s=>String(s.id)!==b.dataset.r);sv('sales',SL);drep()}});
-}
-$('rsh').onclick=async()=>{
-  const d=$('rd').value||dk(),r=agg(d);if(!r.a.length)return;
-  const txt=S.n+'\nتقرير مبيعات '+d+'\n\n'+r.ks.map(n=>n+' - '+mq(r.m[n])+' - '+f2(r.m[n].c)).join('\n')+'\n\nعدد الفواتير: '+r.a.length+'\nالإجمالي: '+f2(r.t)+cur();
-  try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('تم نسخ التقرير')}}catch(e){}
-};
-// Backup
-function bk(){return JSON.stringify({v:1,at:new Date().toISOString(),prods:P,shop:S,offers:O,sales:SL,inv:L})}
-function bkm(){
-  const t=+ld('lastbk',0),old=!t||Date.now()-t>7*864e5;
-  $('bm').textContent=t?'آخر نسخة: '+new Date(t).toLocaleDateString('ar-EG',{day:'numeric',month:'long'})+(old?' — مضى أكثر من أسبوع، احفظ نسخة جديدة.':''):'لم تحفظ نسخة احتياطية بعد.';
-  $('tabi').textContent=old?'المزيد ●':'المزيد';
-}
-const bdone=()=>{sv('lastbk',Date.now());bkm()};
-$('bd').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bk()],{type:'application/json'}));a.download='attar-backup-'+dk()+'.json';a.click();bdone()};
-$('bc').onclick=async()=>{try{await navigator.clipboard.writeText(bk());bdone();alert('تم نسخ النسخة الاحتياطية، الصقها في رسالة لنفسك.')}catch(e){alert('تعذّر النسخ، استخدم زر الحفظ كملف.')}};
-function restore(t){
-  try{
-    const o=JSON.parse(t);if(!o||!Array.isArray(o.prods))throw 0;
-    if(!confirm('سيتم استبدال البيانات الحالية بالنسخة. هل تريد المتابعة؟'))return;
-    P=o.prods.filter(x=>x&&typeof x.n==='string').map(x=>{const r={n:x.n,p:+x.p||0};if(x.c)r.c=String(x.c);if(x.o)r.o=1;if(x.u)r.u=1;return r});
-    S=o.shop&&typeof o.shop==='object'?o.shop:{n:'عيسى العطار',c:''};
-    O=Array.isArray(o.offers)?o.offers:[];
-    SL=Array.isArray(o.sales)?o.sales.filter(s=>s&&typeof s.d==='string'&&Array.isArray(s.l)):[];
-    L=Array.isArray(o.inv)?o.inv:[];
-    sv('prods',P);sv('shop',S);sv('offers',O);sv('sales',SL);sv('inv',L);
-    $('sn').value=S.n||'';$('sc').value=S.c||'';$('fb').value=S.fb||'';$('mp').value=S.mp||'';$('ad').value=S.ad||'';$('ph').value=S.ph||'';
-    head();plist();fillSel();inv();ol();drep();bdone();$('bm').textContent='✅ تم الاسترجاع بنجاح.';
-  }catch(e){$('bm').textContent='⚠️ النسخة غير صالحة، لم يتغير شيء.'}
-}
-$('bf').onchange=()=>{const f=$('bf').files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(String(r.result));r.readAsText(f);$('bf').value=''};
-$('br').onclick=()=>{const t=$('bt').value.trim();if(t){restore(t);$('bt').value=''}};
-
 // Install + offline
 let dp=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('ib').classList.remove('hide')});
 $('ib').onclick=async()=>{if(dp){dp.prompt();dp=null;$('ib').classList.add('hide')}};
 addEventListener('appinstalled',()=>{$('is').textContent='✅ تم تثبيت التطبيق'});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-head();setMode();plist();fillSel();inv();drep();bkm();
+head();setMode();plist();fillSel();inv();
 </script>
 </body>
 </html>
