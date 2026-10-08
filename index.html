@@ -137,6 +137,7 @@ const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let P=ld('prods',[['كمون',40],['كزبرة',30],['قرفة',60],['هيل',300],['زنجبيل',50],['ينسون',45],['حبة البركة',70]].map(a=>({n:a[0],p:a[1]})));
 let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]),H=ld('sales',[]),RT=null;
+P.forEach(x=>{if(x.u===1||x.u===true||x.u==='1')x.u='pc'});
 const cur=()=>S.c?' '+S.c:'';
 const f2=n=>(+n).toFixed(2);
 // Tabs
