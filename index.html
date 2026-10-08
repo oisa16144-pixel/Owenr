@@ -97,6 +97,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
     <button class="btn" id="no">➕ عرض جديد</button>
     <button class="btn p" id="ex">📋 نسخ بيانات الزبائن</button>
     <button class="btn" id="dl">💾 حفظ كملف prices.json</button>
+    <button class="btn" id="di">🖼 حفظ ملف الصور (images.json)</button>
     <div id="exm" style="color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7"></div>
   </div>
   <div class="card">
@@ -104,6 +105,7 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
     <p style="color:var(--mut);font-size:13px;margin:6px 0 0;line-height:1.7">احفظ نسخة من أصنافك وأسعارك وعروضك وسجل مبيعاتك، واسترجعها إن غيّرت الجوال.</p>
     <button class="btn" id="bk">💾 حفظ نسخة احتياطية</button>
     <button class="btn" id="rs">📂 استرجاع من نسخة</button>
+    <input type="file" id="imf" accept="image/*" class="hide">
     <input type="file" id="rfl" accept=".json,application/json" class="hide">
     <div id="bm" style="color:var(--mut);font-size:13px;margin-top:8px"></div>
   </div>
@@ -136,7 +138,7 @@ const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}ca
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let P=ld('prods',[['كمون',40],['كزبرة',30],['قرفة',60],['هيل',300],['زنجبيل',50],['ينسون',45],['حبة البركة',70]].map(a=>({n:a[0],p:a[1]})));
-let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]),H=ld('sales',[]),RT=null;
+let S=ld('shop',{n:'عيسى العطار',c:''}),L=ld('inv',[]),mode='g',O=ld('offers',[]),H=ld('sales',[]),RT=null,IM=ld('imgs',{}),IV=ld('iv',0),ci=-1;
 P.forEach(x=>{if(x.u===1||x.u===true||x.u==='1')x.u='pc'});
 const cur=()=>S.c?' '+S.c:'';
 const f2=n=>(+n).toFixed(2);
@@ -187,8 +189,12 @@ $('share').onclick=async()=>{
 };
 // Price list
 function plist(){
-  $('pl').innerHTML=P.map((x,i)=>'<div style="margin-bottom:14px"><div class="pr" style="margin-bottom:6px"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px"><input list="cats" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c" style="font-size:15px;padding:9px"><select data-i="'+i+'" data-k="u" style="font-size:15px;padding:9px"><option value="kg"'+(x.u==='pc'?'':' selected')+'>السعر للكيلو</option><option value="pc"'+(x.u==='pc'?' selected':'')+'>السعر للعبوة</option></select></div><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.o?'checked':'')+' data-i="'+i+'" data-k="o"> نفد (غير متوفر)</label></div>').join('')+'<datalist id="cats">'+[...new Set(P.map(x=>x.c).filter(Boolean))].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
-  $('pl').querySelectorAll('input,select').forEach(e=>e.onchange=()=>{const x=P[+e.dataset.i],k=e.dataset.k;x[k]=k==='p'?(+e.value||0):k==='o'?e.checked:e.value;sv('prods',P);fillSel()});
+  $('pl').innerHTML=P.map((x,i)=>'<div style="margin-bottom:14px"><div class="pr" style="margin-bottom:6px"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px"><input list="cats" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c" style="font-size:15px;padding:9px"><select data-i="'+i+'" data-k="u" style="font-size:15px;padding:9px"><option value="kg"'+(x.u==='pc'?'':' selected')+'>السعر للكيلو</option><option value="pc"'+(x.u==='pc'?' selected':'')+'>السعر للعبوة</option></select></div>'
+   +(x.u==='pc'?'<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'+(IM[x.n]?'<img src="'+IM[x.n]+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px">':'')+'<button class="btn" data-img="'+i+'" style="margin:0;padding:8px;flex:1;font-size:15px">📷 '+(IM[x.n]?'تغيير الصورة':'إضافة صورة')+'</button>'+(IM[x.n]?'<button class="x" data-rimg="'+i+'" style="width:36px;height:42px">🗑</button>':'')+'</div>':'')
+   +'<label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.o?'checked':'')+' data-i="'+i+'" data-k="o"> نفد (غير متوفر)</label></div>').join('')+'<datalist id="cats">'+[...new Set(P.map(x=>x.c).filter(Boolean))].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+  $('pl').querySelectorAll('input,select').forEach(e=>e.onchange=()=>{const x=P[+e.dataset.i],k=e.dataset.k;if(k==='n'&&IM[x.n]!==undefined){IM[e.value]=IM[x.n];delete IM[x.n];saveIm()}x[k]=k==='p'?(+e.value||0):k==='o'?e.checked:e.value;sv('prods',P);fillSel();if(k==='u')plist()});
+  $('pl').querySelectorAll('[data-img]').forEach(b=>b.onclick=()=>{ci=+b.dataset.img;$('imf').click()});
+  $('pl').querySelectorAll('[data-rimg]').forEach(b=>b.onclick=()=>{delete IM[P[+b.dataset.rimg].n];saveIm();plist()});
   $('pl').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذا الصنف؟')){P.splice(+b.dataset.d,1);sv('prods',P);plist();fillSel()}});
 }
 $('np').onclick=()=>{P.push({n:'صنف جديد',p:0});sv('prods',P);plist();fillSel()};
@@ -209,7 +215,7 @@ function ol(){
   $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
 }
 $('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
-function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',wa:S.wa||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0,c:x.c||'',o:!!x.o,u:x.u==='pc'?'pc':'kg'})),offers:O.filter(o=>o.t||o.d)},null,1)}
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',wa:S.wa||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0,c:x.c||'',o:!!x.o,u:x.u==='pc'?'pc':'kg'})),offers:O.filter(o=>o.t||o.d),imgv:(P.some(x=>x.u==='pc'&&IM[x.n])?IV:0)},null,1)}
 $('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
 ol();
@@ -225,9 +231,17 @@ function rep(){
 $('rd').value=dt();$('rd').oninput=rep;rep();
 $('rc').onclick=async()=>{rep();const t=S.n+'\nتقرير مبيعات يوم '+RT.d+'\n\nعدد الفواتير: '+RT.n+'\nالإجمالي: '+f2(RT.tot)+cur()+'\n\n'+RT.top.map(e=>e[0]+' - '+(e[1].u==='pc'?e[1].q+' عبوة':Math.round(e[1].g)+' جم')+' - '+f2(e[1].c)).join('\n');try{await navigator.clipboard.writeText(t);alert('تم نسخ التقرير')}catch(e){alert('تعذّر النسخ')}};
 $('rx').onclick=()=>{if(confirm('مسح كل سجل المبيعات؟ لا يمكن التراجع.')){H=[];sv('sales',H);rep()}};
-$('bk').onclick=()=>{const b={v:1,at:new Date().toISOString(),prods:P,shop:S,offers:O,sales:H},a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(b)],{type:'application/json'}));a.download='attar-backup-'+dt()+'.json';a.click();$('bm').textContent='✅ تم حفظ النسخة في التنزيلات.'};
+$('bk').onclick=()=>{const b={v:1,at:new Date().toISOString(),prods:P,shop:S,offers:O,sales:H,imgs:IM,iv:IV},a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(b)],{type:'application/json'}));a.download='attar-backup-'+dt()+'.json';a.click();$('bm').textContent='✅ تم حفظ النسخة في التنزيلات.'};
 $('rs').onclick=()=>$('rfl').click();
-$('rfl').onchange=async()=>{const f=$('rfl').files[0];if(!f)return;try{const b=JSON.parse(await f.text());if(!Array.isArray(b.prods))throw 0;if(!confirm('سيتم استبدال بياناتك الحالية بالنسخة. متابعة؟'))return;sv('prods',b.prods);sv('shop',b.shop||S);sv('offers',b.offers||[]);sv('sales',b.sales||[]);location.reload()}catch(e){$('bm').textContent='⚠️ الملف غير صالح.'}$('rfl').value=''};
+$('rfl').onchange=async()=>{const f=$('rfl').files[0];if(!f)return;try{const b=JSON.parse(await f.text());if(!Array.isArray(b.prods))throw 0;if(!confirm('سيتم استبدال بياناتك الحالية بالنسخة. متابعة؟'))return;sv('prods',b.prods);sv('shop',b.shop||S);sv('offers',b.offers||[]);sv('sales',b.sales||[]);sv('imgs',b.imgs||{});sv('iv',b.iv||0);location.reload()}catch(e){$('bm').textContent='⚠️ الملف غير صالح.'}$('rfl').value=''};
+function saveIm(){IV=Date.now();sv('imgs',IM);sv('iv',IV)}
+function shrink(file,cb){
+  const im=new Image(),u=URL.createObjectURL(file);
+  im.onload=()=>{const k=Math.min(1,180/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(im,0,0,w,h);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',0.6))};
+  im.onerror=()=>cb(null);im.src=u;
+}
+$('imf').onchange=()=>{const f=$('imf').files[0];if(!f||ci<0||!P[ci])return;const nm=P[ci].n;shrink(f,d=>{if(d){IM[nm]=d;saveIm();plist()}else alert('تعذّر قراءة الصورة')});$('imf').value=''};
+$('di').onclick=()=>{const i={};P.forEach(x=>{if(x.u==='pc'&&IM[x.n])i[x.n]=IM[x.n]});const t=JSON.stringify({v:IV,i}),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='images.json';a.click();$('exm').textContent='تم حفظ images.json ('+Math.round(t.length/1024)+' ك.ب). ارفعه إلى GitHub (Upload files) ثم انسخ بيانات الزبائن والصقها في prices.json.'};
 // Calculator
 let ex='';
 ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','(',')'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if('÷×−+'.includes(k))b.className='op';b.onclick=()=>press(k);$('keys').appendChild(b)});
