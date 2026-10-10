@@ -79,6 +79,9 @@ input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;
   <div class="card">
     <b>الأصناف والأسعار</b>
     <p style="color:var(--mut);font-size:13px;margin:6px 0 12px">الأسعار الحالية أمثلة، عدّلها بأسعارك. تُحفظ تلقائياً على هذا الجوال.</p>
+    <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700;color:var(--ac);padding:6px 0">🗂 تنظيم التصنيفات</summary>
+    <div id="cml" style="margin-top:8px"></div>
+    <button class="btn" id="cmp">✨ تطبيق التقسيم المقترح (7 تصنيفات)</button></details>
     <div id="pl"></div>
     <button class="btn p" id="np">➕ صنف جديد</button>
   </div>
@@ -192,8 +195,8 @@ $('share').onclick=async()=>{
 function plist(){
   $('pl').innerHTML=P.map((x,i)=>'<div style="margin-bottom:14px"><div class="pr" style="margin-bottom:6px"><input value="'+esc(x.n)+'" data-i="'+i+'" data-k="n"><input type="number" inputmode="decimal" value="'+x.p+'" data-i="'+i+'" data-k="p"><button class="x" data-d="'+i+'" style="width:36px;height:42px">🗑</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px"><input list="cats" placeholder="التصنيف (مثال: بهارات)" value="'+esc(x.c||'')+'" data-i="'+i+'" data-k="c" style="font-size:15px;padding:9px"><select data-i="'+i+'" data-k="u" style="font-size:15px;padding:9px"><option value="kg"'+(x.u==='pc'?'':' selected')+'>السعر للكيلو</option><option value="pc"'+(x.u==='pc'?' selected':'')+'>السعر للعبوة</option></select></div>'
    +(x.u==='pc'?'<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'+(IM[x.n]?'<img src="'+IM[x.n]+'" data-view="'+i+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px;cursor:pointer">':'')+'<button class="btn" data-img="'+i+'" style="margin:0;padding:8px;flex:1;font-size:15px">📷 '+(IM[x.n]?'تغيير الصورة':'إضافة صورة')+'</button>'+(IM[x.n]?'<button class="x" data-rimg="'+i+'" style="width:36px;height:42px">🗑</button>':'')+'</div>':'')
-   +'<label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.o?'checked':'')+' data-i="'+i+'" data-k="o"> نفد (غير متوفر)</label></div>').join('')+'<datalist id="cats">'+[...new Set(P.map(x=>x.c).filter(Boolean))].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
-  $('pl').querySelectorAll('input,select').forEach(e=>e.onchange=()=>{const x=P[+e.dataset.i],k=e.dataset.k;if(k==='n'&&IM[x.n]!==undefined){IM[e.value]=IM[x.n];delete IM[x.n];saveIm()}x[k]=k==='p'?(+e.value||0):k==='o'?e.checked:e.value;sv('prods',P);fillSel();if(k==='u')plist()});
+   +'<label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.o?'checked':'')+' data-i="'+i+'" data-k="o"> نفد (غير متوفر)</label><label style="margin:6px 0 0;display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:22px;height:22px;padding:0;margin:0" '+(x.f?'checked':'')+' data-i="'+i+'" data-k="f"> ⭐ مميّز (يظهر في الأكثر طلباً)</label></div>').join('')+'<datalist id="cats">'+[...new Set(P.map(x=>x.c).filter(Boolean))].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+  $('pl').querySelectorAll('input,select').forEach(e=>e.onchange=()=>{const x=P[+e.dataset.i],k=e.dataset.k;if(k==='n'&&IM[x.n]!==undefined){IM[e.value]=IM[x.n];delete IM[x.n];saveIm()}x[k]=k==='p'?(+e.value||0):(k==='o'||k==='f')?e.checked:e.value;sv('prods',P);fillSel();if(k==='u')plist()});
   $('pl').querySelectorAll('[data-view]').forEach(im=>im.onclick=()=>{$('lbi').src=IM[P[+im.dataset.view].n];$('lb').style.display='flex'});
   $('pl').querySelectorAll('[data-img]').forEach(b=>b.onclick=()=>{ci=+b.dataset.img;$('imf').click()});
   $('pl').querySelectorAll('[data-rimg]').forEach(b=>b.onclick=()=>{delete IM[P[+b.dataset.rimg].n];saveIm();plist()});
@@ -217,7 +220,7 @@ function ol(){
   $('ol').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{O.splice(+b.dataset.x,1);sv('offers',O);ol()});
 }
 $('no').onclick=()=>{O.push({t:'',d:''});sv('offers',O);ol()};
-function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',wa:S.wa||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0,c:x.c||'',o:!!x.o,u:x.u==='pc'?'pc':'kg'})),offers:O.filter(o=>o.t||o.d),imgv:(P.some(x=>x.u==='pc'&&IM[x.n])?IV:0)},null,1)}
+function pj(){return JSON.stringify({name:S.n,cur:S.c||'',fb:S.fb||'',wa:S.wa||'',map:S.mp||'',addr:S.ad||'',phones:(S.ph||'').split('\n').map(x=>x.trim()).filter(Boolean),updated:new Date().toISOString(),items:P.map(x=>({n:x.n,p:+x.p||0,c:x.c||'',o:!!x.o,f:!!x.f,u:x.u==='pc'?'pc':'kg'})),offers:O.filter(o=>o.t||o.d),imgv:(P.some(x=>x.u==='pc'&&IM[x.n])?IV:0)},null,1)}
 $('ex').onclick=async()=>{try{await navigator.clipboard.writeText(pj());$('exm').textContent='✅ تم النسخ. الصقه داخل ملف prices.json في GitHub ثم Commit.'}catch(e){$('exm').textContent='تعذّر النسخ، استخدم زر الحفظ كملف.'}};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pj()],{type:'application/json'}));a.download='prices.json';a.click();$('exm').textContent='تم حفظ prices.json في التنزيلات.'};
 ol();
@@ -244,6 +247,19 @@ function shrink(file,cb){
 }
 $('imf').onchange=()=>{const f=$('imf').files[0];if(!f||ci<0||!P[ci])return;const nm=P[ci].n;shrink(f,d=>{if(d){IM[nm]=d;saveIm();plist()}else alert('تعذّر قراءة الصورة')});$('imf').value=''};
 $('di').onclick=()=>{const i={};P.forEach(x=>{if(x.u==='pc'&&IM[x.n])i[x.n]=IM[x.n]});const t=JSON.stringify({v:IV,i}),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='images.json';a.click();$('exm').textContent='تم حفظ images.json ('+Math.round(t.length/1024)+' ك.ب). ارفعه إلى GitHub (Upload files) ثم انسخ بيانات الزبائن والصقها في prices.json.'};
+const CMAP={'بهارات':'بهارات وتوابل','اعشاب':'أعشاب ومشروبات','كاكاو':'أعشاب ومشروبات','الحبوب والبقوليات':'حبوب وبقوليات','ارز':'أرز ودقيق','ارز شكاير':'أرز ودقيق','دقيق':'أرز ودقيق','زيت طعام':'زيوت وخل وصلصات','خل':'زيوت وخل وصلصات','صلصه':'زيوت وخل وصلصات','المكرونه':'مكرونة','عسل':'عسل'};
+const CORD=['بهارات وتوابل','أعشاب ومشروبات','حبوب وبقوليات','أرز ودقيق','زيوت وخل وصلصات','مكرونة','عسل'];
+const cats=()=>[...new Set(P.map(x=>x.c).filter(Boolean))];
+function sortBy(o){const r=c=>{const i=o.indexOf(c||'');return i<0?999:i};P=P.map((x,i)=>[x,i]).sort((a,b)=>r(a[0].c)-r(b[0].c)||a[1]-b[1]).map(a=>a[0])}
+function afterCat(){sv('prods',P);plist();cm();fillSel()}
+function cm(){
+  const cs=cats();
+  $('cml').innerHTML=cs.map((c,i)=>'<div style="display:grid;grid-template-columns:1fr 40px 40px;gap:6px;margin-bottom:2px"><input data-cn="'+esc(c)+'" value="'+esc(c)+'" style="font-size:15px;padding:9px"><button class="x" data-up="'+i+'" style="height:42px">▲</button><button class="x" data-dn="'+i+'" style="height:42px">▼</button></div><div style="margin:0 0 8px;font-size:12px;color:var(--mut)">'+P.filter(x=>x.c===c).length+' صنف</div>').join('')||'<div style="color:var(--mut);font-size:14px">لا توجد تصنيفات بعد</div>';
+  $('cml').querySelectorAll('[data-cn]').forEach(e=>e.onchange=()=>{const o=e.dataset.cn,n=e.value.trim();if(!n||n===o)return;P.forEach(x=>{if(x.c===o)x.c=n});afterCat()});
+  $('cml').querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const c=cats(),i=+b.dataset.up;if(i>0){[c[i-1],c[i]]=[c[i],c[i-1]];sortBy(c);afterCat()}});
+  $('cml').querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{const c=cats(),i=+b.dataset.dn;if(i<c.length-1){[c[i+1],c[i]]=[c[i],c[i+1]];sortBy(c);afterCat()}});
+}
+$('cmp').onclick=()=>{if(!confirm('سيتم دمج التصنيفات وترتيبها في 7 تصنيفات. متابعة؟'))return;P.forEach(x=>{if(x.c&&CMAP[x.c])x.c=CMAP[x.c]});sortBy(CORD);afterCat()};
 // Calculator
 let ex='';
 ['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','(',')'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if('÷×−+'.includes(k))b.className='op';b.onclick=()=>press(k);$('keys').appendChild(b)});
@@ -261,7 +277,7 @@ addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('ib').class
 $('ib').onclick=async()=>{if(dp){dp.prompt();dp=null;$('ib').classList.add('hide')}};
 addEventListener('appinstalled',()=>{$('is').textContent='✅ تم تثبيت التطبيق'});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-head();setMode();plist();fillSel();inv();
+head();setMode();plist();fillSel();inv();cm();
 </script>
 </body>
 </html>
