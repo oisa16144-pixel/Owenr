@@ -11,9 +11,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#f6f1e7;--card:#fffdf8;--fg:#2b2218;--mut:#7a6a55;--ac:#14663d;--acf:#fff;--key:#ece3d2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120c;--card:#241c12;--fg:#f3e9d8;--mut:#b4a285;--ac:#d9a050;--acf:#1d1507;--key:#33281a}}
-:root[data-theme="dark"]{--bg:#17120c;--card:#241c12;--fg:#f3e9d8;--mut:#b4a285;--ac:#d9a050;--acf:#1d1507;--key:#33281a}
+:root{--bg:#F6F4EE;--card:#FFFFFF;--fg:#1B2A22;--mut:#66756B;--ac:#0F5132;--acf:#FFFFFF;--key:#EAEFE8;--hot:#B3261E;--gold:#B8892B;--bd:#E3E0D5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A130E;--card:#12201A;--fg:#F1EEE5;--mut:#9FB1A5;--ac:#D4A63A;--acf:#1A1405;--key:#1E3026;--hot:#FF8A7A;--gold:#D4A63A;--bd:#213528}}
+:root[data-theme="dark"]{--bg:#0A130E;--card:#12201A;--fg:#F1EEE5;--mut:#9FB1A5;--ac:#D4A63A;--acf:#1A1405;--key:#1E3026;--hot:#FF8A7A;--gold:#D4A63A;--bd:#213528}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
 main{max-width:480px;margin:0 auto;padding:16px}
@@ -22,7 +22,7 @@ h1{font-size:22px;margin:4px 0 14px}
 .tabs button{border:0;background:none;color:var(--mut);padding:10px 1px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
 .tabs button.on{background:var(--ac);color:var(--acf)}
 .card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px}
-.hide{display:none}
+.hide{display:none}.card{border:1px solid var(--bd)}
 label{display:block;color:var(--mut);font-size:14px;margin:12px 0 6px}
 input,select,textarea{width:100%;padding:12px;font-size:18px;border-radius:12px;border:1px solid var(--key);background:var(--bg);color:var(--fg)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
@@ -242,7 +242,7 @@ $('rfl').onchange=async()=>{const f=$('rfl').files[0];if(!f)return;try{const b=J
 function saveIm(){IV=Date.now();sv('imgs',IM);sv('iv',IV)}
 function shrink(file,cb){
   const im=new Image(),u=URL.createObjectURL(file);
-  im.onload=()=>{const k=Math.min(1,420/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(im,0,0,w,h);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',0.65))};
+  im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(im,0,0,w,h);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',0.7))};
   im.onerror=()=>cb(null);im.src=u;
 }
 $('imf').onchange=()=>{const f=$('imf').files[0];if(!f||ci<0||!P[ci])return;const nm=P[ci].n;shrink(f,d=>{if(d){IM[nm]=d;saveIm();plist()}else alert('تعذّر قراءة الصورة')});$('imf').value=''};
